@@ -5,7 +5,7 @@ import type { Archive } from './sheets';
 const cache = createStorage<Archive[]>({
 	driver: redisDriver({
 		base: 'unstorage',
-		url: process.env.REDIS_URL,
+		url: process.env.REDIS_URL + '?family=0',
 		ttl: 3.6e6
 	})
 });
