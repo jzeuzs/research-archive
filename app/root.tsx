@@ -1,8 +1,33 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, Link } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, Link, useNavigation, useFetchers } from '@remix-run/react';
+import { useMemo, useEffect } from 'react';
+import type { LinksFunction } from '@remix-run/node';
 import { SiFacebook } from '@icons-pack/react-simple-icons';
-import './tailwind.css';
+import NProgress from 'nprogress';
+import nprogressStyles from 'nprogress/nprogress.css?url';
+import tailwind from './tailwind.css?url';
+
+export const links: LinksFunction = () => [
+	{ rel: 'stylesheet', href: tailwind },
+	{ rel: 'stylesheet', href: nprogressStyles }
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	const navigation = useNavigation();
+	const fetchers = useFetchers();
+	const state = useMemo<'idle' | 'loading'>(() => {
+		const states = [navigation.state, ...fetchers.map(({ state }) => state)];
+
+		if (states.every((state) => state === 'idle')) return 'idle';
+		return 'loading';
+	}, [navigation.state, fetchers]);
+
+	useEffect(() => {
+		NProgress.configure({ showSpinner: false });
+
+		if (state === 'loading') NProgress.start();
+		if (state === 'idle') NProgress.done();
+	}, [state]);
+
 	return (
 		<html lang="en">
 			<head>

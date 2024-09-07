@@ -1,5 +1,5 @@
 import { json, type MetaFunction } from '@remix-run/node';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useState, useEffect } from 'react';
 import getArchives, { type Archive } from '~/util/sheets';
 import { Button, Checkbox, Label, TextInput, Card, Badge } from 'flowbite-react';
 import { Filter, Calendar, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
@@ -65,6 +65,8 @@ export default function Index() {
 
 	const pageCount = Math.ceil(results.length / 5);
 	const paginatedResults = results.slice((currentPage - 1) * 5, currentPage * 5);
+
+	useEffect(() => handleSearch());
 
 	return (
 		<>
