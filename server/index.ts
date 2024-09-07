@@ -7,11 +7,15 @@ import { fastify } from 'fastify';
 import getPort, { portNumbers } from 'get-port';
 import compress from '@fastify/compress';
 import helmet from '@fastify/helmet';
+import ratelimit from '@fastify/rate-limit';
+import Redis from 'ioredis';
 
 dotenv.config();
 sourceMapSupport.install();
 
 const app = fastify();
+const redis = new Redis(process.env.REDIS_URL + '?family=0');
+
 await app.register(helmet, {
 	contentSecurityPolicy: {
 		directives: {
@@ -23,6 +27,12 @@ await app.register(helmet, {
 });
 
 await app.register(compress);
+await app.register(ratelimit, {
+	redis,
+	max: 100,
+	timeWindow: '1 minute'
+});
+
 await app.register(remixFastify);
 
 const host = process.env.HOST || '0.0.0.0';
