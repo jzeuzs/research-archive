@@ -14,7 +14,7 @@ dotenv.config();
 sourceMapSupport.install();
 
 const app = fastify();
-const redis = new Redis(process.env.REDIS_URL + '?family=0');
+const redis = new Redis(process.env.REDIS_URL + '?family=0', { enableAutoPipelining: true });
 
 await app.register(helmet, {
 	contentSecurityPolicy: {

@@ -118,17 +118,22 @@ export default function Archive() {
 
 						<div>
 							<h3 className="text-lg font-semibold mb-2 font-inter">Recommended Citation</h3>
-							<div className="bg-gray-100 p-4 rounded-md flex justify-between items-start">
-								{/* eslint-disable-next-line react/no-danger */}
-								<p className="text-black font-inter flex-grow pr-4 break-words" dangerouslySetInnerHTML={{ __html: biblio.html }}></p>
+							<div className="bg-gray-100 p-4 rounded-md">
+								<div className="flex items-start justify-between">
+									{/* eslint-disable-next-line react/no-danger */}
+									<p
+										className="text-black text-sm font-inter flex-grow pr-4 break-words"
+										dangerouslySetInnerHTML={{ __html: biblio.html }}
+									></p>
 
-								<button
-									onClick={() => copy(biblio.text)}
-									className="text-blue-500 hover:text-blue-600 focus:outline-none flex-shrink-0"
-									aria-label="Copy citation"
-								>
-									<Copy className="h-5 w-5" />
-								</button>
+									<button
+										onClick={() => copy(biblio.text)}
+										className="text-blue-500 hover:text-blue-600 focus:outline-none flex-shrink-0 ml-2"
+										aria-label="Copy citation"
+									>
+										<Copy className="h-5 w-5" />
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
