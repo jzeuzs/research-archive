@@ -1,8 +1,6 @@
 import { vitePlugin as remix } from '@remix-run/dev';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { chunkSplitPlugin } from 'vite-plugin-chunk-split';
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 export default defineConfig({
 	plugins: [
@@ -13,8 +11,6 @@ export default defineConfig({
 				v3_throwAbortReason: true
 			}
 		}),
-		tsconfigPaths(),
-		chunkSplitPlugin(),
-		ViteImageOptimizer()
+		tsconfigPaths()
 	]
 });

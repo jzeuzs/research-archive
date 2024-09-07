@@ -51,7 +51,9 @@ export default function Archive() {
 		if (typeof window !== 'undefined') {
 			setHref(window.location.href);
 		}
+	}, []);
 
+	useEffect(() => {
 		const generateReference = async () => {
 			// @ts-expect-error no types
 			const { Cite } = await import('@citation-js/core');

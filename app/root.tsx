@@ -23,7 +23,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		NProgress.configure({ showSpinner: false });
+	}, []);
 
+	useEffect(() => {
 		if (state === 'loading') NProgress.start();
 		if (state === 'idle') NProgress.done();
 	}, [state]);

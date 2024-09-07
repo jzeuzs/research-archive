@@ -41,7 +41,7 @@ export default function Index() {
 			[type]: !prev[type]
 		}));
 
-	const handleSearch = (e?: FormEvent) => {
+	const handleSearch = (query: string, e?: FormEvent) => {
 		e?.preventDefault();
 
 		const filteredArchives = archives.filter(({ type }) => {
@@ -66,13 +66,15 @@ export default function Index() {
 	const pageCount = Math.ceil(results.length / 5);
 	const paginatedResults = results.slice((currentPage - 1) * 5, currentPage * 5);
 
-	useEffect(() => handleSearch());
+	// only run once
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	useEffect(() => handleSearch(''), []);
 
 	return (
 		<>
 			<h2 className="text-2xl font-bold mb-6 font-inter">Research Archive Search</h2>
 
-			<form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 mb-6">
+			<form onSubmit={(e) => handleSearch(query, e)} className="flex flex-col md:flex-row gap-4 mb-6">
 				<div className="flex-grow font-inter">
 					<TextInput type="text" placeholder="Enter your search query" value={query} onChange={(e) => setQuery(e.target.value)} />
 				</div>
