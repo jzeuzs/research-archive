@@ -1,28 +1,38 @@
 import { json, type MetaFunction } from '@remix-run/node';
 import { type FormEvent, useState, useEffect } from 'react';
 import getArchives, { type Archive } from '~/util/sheets';
-import { Button, Checkbox, Label, TextInput, Card, Badge } from 'flowbite-react';
+import { Button, Checkbox, Label, Card, Badge } from 'flowbite-react';
 import { Filter, Calendar, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Link, useLoaderData } from '@remix-run/react';
 import fuzzysort from 'fuzzysort';
 import cache from '~/util/cache';
 import formatType from '~/util/formatType';
+import { PlaceholdersAndVanishInput } from '~/components/placeholders-and-vanish-input';
+import sampleSize from 'lodash.samplesize';
 
 export const meta: MetaFunction = () => {
 	return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }];
 };
 
 export async function loader() {
-	const cachedArchives = await cache.getItem('archives');
-	if (cachedArchives) return json(cachedArchives);
+	let archives = await cache.getItem<Archive[]>('archives');
+	let keywords = await cache.getItem<string[]>('keywords');
 
-	const archives = await getArchives();
-	await cache.setItem('archives', archives);
-	return json(archives);
+	if (!archives) {
+		archives = await getArchives();
+		await cache.setItem('archives', archives);
+	}
+
+	if (!keywords) {
+		keywords = archives.map(({ keywords }) => keywords).flat();
+		await cache.setItem('keywords', keywords);
+	}
+
+	return json({ archives, keywords });
 }
 
 export default function Index() {
-	const archives = useLoaderData<typeof loader>();
+	const { archives, keywords } = useLoaderData<typeof loader>();
 
 	const [query, setQuery] = useState('');
 	const [filters, setFilters] = useState({
@@ -53,6 +63,18 @@ export default function Index() {
 			);
 		});
 
+		if (query.trim() === '*') {
+			const results = fuzzysort.go('', filteredArchives, {
+				keys: ['title', 'abstract', (archive) => archive.authors.join(','), (archive) => archive.keywords.join(',')],
+				threshold: 0.5,
+				all: true
+			});
+
+			setResults(results);
+			setCurrentPage(1);
+			return;
+		}
+
 		const results = fuzzysort.go(query, filteredArchives, {
 			keys: ['title', 'abstract', (archive) => archive.authors.join(','), (archive) => archive.keywords.join(',')],
 			threshold: 0.5,
@@ -65,6 +87,7 @@ export default function Index() {
 
 	const pageCount = Math.ceil(results.length / 5);
 	const paginatedResults = results.slice((currentPage - 1) * 5, currentPage * 5);
+	const searchPlaceholders = ['Input your search query', 'Input * to display all archives', ...sampleSize(keywords, 4)];
 
 	// only run once
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,15 +97,11 @@ export default function Index() {
 		<>
 			<h2 className="text-2xl font-bold mb-6 font-inter">Research Archive Search</h2>
 
-			<form onSubmit={(e) => handleSearch(query, e)} className="flex flex-col md:flex-row gap-4 mb-6">
-				<div className="flex-grow font-inter">
-					<TextInput type="text" placeholder="Enter your search query" value={query} onChange={(e) => setQuery(e.target.value)} />
-				</div>
-
-				<Button type="submit" className="bg-black font-inter">
-					Search
-				</Button>
-			</form>
+			<PlaceholdersAndVanishInput
+				placeholders={searchPlaceholders}
+				onChange={(e) => setQuery(e.target.value)}
+				onSubmit={(e) => handleSearch(query, e)}
+			/>
 
 			<div className="flex flex-col md:flex-row gap-8 mb-8">
 				<div className="w-full md:w-1/3">
@@ -96,24 +115,14 @@ export default function Index() {
 							<h4 className="font-medium mb-2 font-inter">Research Type</h4>
 							<div className="space-y-2">
 								<div className="flex items-center">
-									<Checkbox
-										className="bg-black text-black"
-										id="pr1"
-										checked={filters.pr1}
-										onChange={() => handleFilterChange('pr1')}
-									/>
+									<Checkbox className="text-black" id="pr1" checked={filters.pr1} onChange={() => handleFilterChange('pr1')} />
 									<Label htmlFor="pr1" className="ml-2 font-inter">
 										Practical Research 1 (Qualitative)
 									</Label>
 								</div>
 
 								<div className="flex items-center">
-									<Checkbox
-										className="bg-black text-black"
-										id="pr2"
-										checked={filters.pr2}
-										onChange={() => handleFilterChange('pr2')}
-									/>
+									<Checkbox className="text-black" id="pr2" checked={filters.pr2} onChange={() => handleFilterChange('pr2')} />
 									<Label htmlFor="pr2" className="ml-2 font-inter">
 										Practical Research 2 (Quantitative)
 									</Label>
@@ -121,7 +130,7 @@ export default function Index() {
 
 								<div className="flex items-center">
 									<Checkbox
-										className="bg-black text-black"
+										className="text-black"
 										id="capstone"
 										checked={filters.capstone}
 										onChange={() => handleFilterChange('capstone')}
@@ -133,7 +142,7 @@ export default function Index() {
 
 								<div className="flex items-center">
 									<Checkbox
-										className="bg-black text-black"
+										className="text-black"
 										id="respro"
 										checked={filters.respro}
 										onChange={() => handleFilterChange('respro')}

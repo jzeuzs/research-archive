@@ -31,7 +31,7 @@ const archiveToBib = (archive: Archive, href: string) => {
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {
-	let archives = await cache.getItem('archives');
+	let archives = await cache.getItem<Archive[]>('archives');
 	if (!archives) archives = await getArchives();
 
 	const archive = archives.find(({ slug }) => slug === params.slug);

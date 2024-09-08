@@ -1,8 +1,7 @@
 import { createStorage } from 'unstorage';
 import redisDriver from 'unstorage/drivers/redis';
-import type { Archive } from './sheets';
 
-const cache = createStorage<Archive[]>({
+const cache = createStorage({
 	driver: redisDriver({
 		base: 'unstorage',
 		url: process.env.REDIS_URL + '?family=0',
