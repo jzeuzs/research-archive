@@ -27,11 +27,22 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export default function Archive() {
-	const archive = useLoaderData<typeof loader>();
+	const rawArchive = useLoaderData<typeof loader>();
+	const archive = {
+		...rawArchive,
+		author: rawArchive.authors
+			.map((author) => {
+				const [lastName, firstName] = author.split(', ');
+
+				return `${firstName} ${lastName}`;
+			})
+			.join(', ')
+	};
+
 	const [, copy] = useCopyToClipboard();
 	const [biblio, setBiblio] = useState({} as { text: string; html: string });
 	const [href, setHref] = useState('');
-	const bib = archiveToBib(archive, href);
+	const bib = archiveToBib(rawArchive, href);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
