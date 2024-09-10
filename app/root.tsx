@@ -2,6 +2,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration, Link, useNavigation, u
 import { useMemo, useEffect } from 'react';
 import type { LinksFunction } from '@remix-run/node';
 import { SiFacebook } from '@icons-pack/react-simple-icons';
+import { Mail } from 'lucide-react';
 import NProgress from 'nprogress';
 import nprogressStyles from 'nprogress/nprogress.css?url';
 import tailwind from './tailwind.css?url';
@@ -61,6 +62,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 											rel="noreferrer"
 										>
 											<SiFacebook className="h-6 w-6" />
+										</Link>
+									</li>
+									<li>
+										<Link to="mailto:shs@msugensan.edu.ph" className="p-2 rounded-full transition-colors" aria-label="Email">
+											<Mail className="h-6 w-6" />
 										</Link>
 									</li>
 								</ul>
