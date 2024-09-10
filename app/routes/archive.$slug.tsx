@@ -30,7 +30,7 @@ export default function Archive() {
 	const rawArchive = useLoaderData<typeof loader>();
 	const archive = {
 		...rawArchive,
-		author: rawArchive.authors
+		authors: rawArchive.authors
 			.map((author) => {
 				const [lastName, firstName] = author.split(', ');
 
@@ -93,7 +93,7 @@ export default function Archive() {
 					<h2 className="text-2xl font-bold mb-4 font-inter">{archive.title}</h2>
 					<div className="space-y-4">
 						<div className="flex justify-between text-sm text-gray-500 font-inter">
-							<span className="mr-1">{archive.authors.join(', ')}</span>
+							<span className="mr-1">{archive.authors}</span>
 							<span className="flex items-center ml-1">
 								<Calendar className="h-4 w-4 mr-1" />
 								{archive.year}
