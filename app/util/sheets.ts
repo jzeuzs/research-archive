@@ -40,7 +40,7 @@ export default async function getArchives() {
 		...archive,
 		slug: slugify(archive.title),
 		keywords: archive.keywords.split(',').map((keyword: string) => keyword.trim()),
-		authors: archive.authors.split(',').map((author: string) => author.trim())
+		authors: archive.authors.split(' and ').map((author: string) => author.trim())
 	})) as Archive[];
 
 	return archives;

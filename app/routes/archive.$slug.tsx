@@ -8,27 +8,13 @@ import formatType from '~/util/formatType';
 import { type LoaderFunctionArgs, json } from '@remix-run/node';
 import { useCopyToClipboard } from 'usehooks-ts';
 
-const authorsRegex = /^([\w.]+\s[\w\s]*\b[\w]\.?)\s([\w\s-]+)$/;
-const archiveToBib = (archive: Archive, href: string) => {
-	const authors = archive.authors.flatMap((author) => {
-		const matched = author.match(authorsRegex);
-
-		if (!matched) return [];
-
-		const firstname = matched[1];
-		const lastname = matched[2];
-
-		return `${lastname}, ${firstname}`;
-	});
-
-	return `@misc{research,
-		author = {${authors.join(' and ')}},
+const archiveToBib = (archive: Archive, href: string) => `@misc{research,
+		author = {${archive.authors.join(' and ')}},
 		title = {${archive.title}},
 		year = {${archive.year}},
 		url = {${href}},
 		publisher = {MSU-GSC SHS Research Archive},
 	}`;
-};
 
 export async function loader({ params }: LoaderFunctionArgs) {
 	let archives = await cache.getItem<Archive[]>('archives');

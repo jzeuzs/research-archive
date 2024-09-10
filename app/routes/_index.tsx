@@ -10,6 +10,8 @@ import formatType from '~/util/formatType';
 import { PlaceholdersAndVanishInput } from '~/components/placeholders-and-vanish-input';
 import sampleSize from 'lodash.samplesize';
 
+type Unpacked<T> = T extends (infer U)[] ? U : T;
+
 export const meta: MetaFunction = () => {
 	return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }];
 };
@@ -32,7 +34,17 @@ export async function loader() {
 }
 
 export default function Index() {
-	const { archives, keywords } = useLoaderData<typeof loader>();
+	const { archives: rawArchives, keywords } = useLoaderData<typeof loader>();
+	const archives = rawArchives.map((archive) => ({
+		...archive,
+		authors: archive.authors
+			.map((author) => {
+				const [lastName, firstName] = author.split(', ');
+
+				return `${firstName} ${lastName}`;
+			})
+			.join(', ')
+	}));
 
 	const [query, setQuery] = useState('');
 	const [filters, setFilters] = useState({
@@ -42,7 +54,7 @@ export default function Index() {
 		respro: true // Research Project (ABM & HUMSS)
 	});
 
-	const [results, setResults] = useState([] as unknown as ReturnType<typeof fuzzysort.go<Archive>>);
+	const [results, setResults] = useState([] as unknown as ReturnType<typeof fuzzysort.go<Unpacked<typeof archives>>>);
 	const [currentPage, setCurrentPage] = useState(1);
 
 	const handleFilterChange = (type: 'pr1' | 'pr2' | 'capstone' | 'respro') =>
@@ -65,7 +77,7 @@ export default function Index() {
 
 		if (query.trim() === '*') {
 			const results = fuzzysort.go('', filteredArchives, {
-				keys: ['title', 'abstract', (archive) => archive.authors.join(','), (archive) => archive.keywords.join(',')],
+				keys: ['title', 'abstract', 'authors', (archive) => archive.keywords.join(',')],
 				threshold: 0.5,
 				all: true
 			});
@@ -76,7 +88,7 @@ export default function Index() {
 		}
 
 		const results = fuzzysort.go(query, filteredArchives, {
-			keys: ['title', 'abstract', (archive) => archive.authors.join(','), (archive) => archive.keywords.join(',')],
+			keys: ['title', 'abstract', 'authors', (archive) => archive.keywords.join(',')],
 			threshold: 0.5,
 			all: true
 		});
@@ -164,7 +176,7 @@ export default function Index() {
 									<div className="flex flex-col gap-2">
 										<h3 className="text-xl font-semibold font-inter">{obj.title}</h3>
 										<div className="flex justify-between text-sm text-gray-500 font-inter">
-											<span className="mr-1">{obj.authors.join(', ')}</span>
+											<span className="mr-1">{obj.authors}</span>
 											<span className="flex items-center ml-1">
 												<Calendar className="mr-1 h-4 w-4" />
 												{obj.year}
